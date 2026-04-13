@@ -2,10 +2,10 @@
   <h1>jsonsettle</h1>
   <p><strong>Schema-aware streaming JSON parser for LLMs.</strong><br>
   Know exactly which fields are <code>certain</code> vs still <code>streaming</code> — token by token.</p>
-  <img alt="npm" src="https://img.shields.io/npm/v/jsonsettle?color=7c6dfa&style=flat-square">
-  <img alt="license" src="https://img.shields.io/github/license/bhuvan/jsonsettle?color=4ade80&style=flat-square">
-  <img alt="zero deps" src="https://img.shields.io/badge/dependencies-zero-4ade80?style=flat-square">
-  <img src="https://raw.githubusercontent.com/YOUR_USERNAME/jsonsettle/main/assets/demo.gif" alt="jsonsettle demo" width="700">
+  <img alt="npm" src="https://img.shields.io/npm/v/%40bhuvanprakash%2Fjsonsettle?color=7c6dfa&style=flat-square">
+  <img alt="license" src="https://img.shields.io/github/license/bhuvanprakash/jsonsettle?color=4ade80&style=flat-square">
+  <img alt="dependencies" src="https://img.shields.io/badge/dependencies-twine-7c6dfa?style=flat-square">
+  <img src="https://raw.githubusercontent.com/bhuvanprakash/jsonsettle/main/assets/demo.gif" alt="jsonsettle demo" width="700">
 </div>
 
 ---
@@ -25,7 +25,7 @@ So every app **waits**. `name` was done 40 tokens ago. You're blocking the UI fo
 ## The Solution
 
 ```ts
-import { StreamingJSONParser } from 'jsonsettle'
+import { StreamingJSONParser } from '@bhuvanprakash/jsonsettle'
 
 const parser = new StreamingJSONParser({
   onUpdate({ partial, fields }) {
@@ -50,12 +50,18 @@ parser.write('{"name":"Priya","age":28}')
 | Schema / Zod binding | ❌ | ❌ | ✅ |
 | TypeScript inference | ❌ | ❌ | ✅ |
 | React hook | ❌ | ❌ | ✅ |
-| Zero dependencies | ✅ | ✅ | ✅ |
+| Runtime dependencies | ✅ | ✅ | twine (1) |
 
 ## Install
 
 ```sh
-npm install jsonsettle
+npm install @bhuvanprakash/jsonsettle
+```
+
+Python (PyPI package name is unscoped):
+
+```sh
+pip install jsonsettle
 ```
 
 ## Usage
@@ -63,7 +69,7 @@ npm install jsonsettle
 ### Vanilla JS / Node
 
 ```ts
-import { StreamingJSONParser } from 'jsonsettle'
+import { StreamingJSONParser } from '@bhuvanprakash/jsonsettle'
 
 const parser = new StreamingJSONParser({
   onUpdate({ partial, fields, isComplete }) {
@@ -88,7 +94,7 @@ parser.flush()
 ### React Hook
 
 ```ts
-import { useStreamingJSON } from 'jsonsettle/react'
+import { useStreamingJSON } from '@bhuvanprakash/jsonsettle/react'
 
 function UserCard({ stream }: { stream: ReadableStream<string> }) {
   const { partial, fields, isComplete } = useStreamingJSON<User>(stream)
@@ -110,7 +116,7 @@ function UserCard({ stream }: { stream: ReadableStream<string> }) {
 ### Zod Schema Binding
 
 ```ts
-import { createSchemaParser } from 'jsonsettle/zod'
+import { createSchemaParser } from '@bhuvanprakash/jsonsettle/zod'
 import { z } from 'zod'
 
 const UserSchema = z.object({
@@ -192,4 +198,4 @@ for await (const chunk of textStream) parser.write(chunk)
 
 ## License
 
-Apache-2.0 © [Bhuvan Prakash](https://github.com/bhuvan)
+Apache-2.0 © [Bhuvan Prakash](https://github.com/bhuvanprakash)

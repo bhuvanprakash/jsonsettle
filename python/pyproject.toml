@@ -23,9 +23,9 @@ pydantic = ["pydantic>=2"]
 dev = ["pytest", "pytest-asyncio", "pydantic>=2", "hatchling"]
 
 [project.urls]
-Homepage = "https://github.com/bhuvan/jsonsettle"
-Repository = "https://github.com/bhuvan/jsonsettle"
-"Bug Tracker" = "https://github.com/bhuvan/jsonsettle/issues"
+Homepage = "https://github.com/bhuvanprakash/jsonsettle"
+Repository = "https://github.com/bhuvanprakash/jsonsettle"
+"Bug Tracker" = "https://github.com/bhuvanprakash/jsonsettle/issues"
 
 [tool.hatch.version]
 path = "src/jsonsettle/__init__.py"
