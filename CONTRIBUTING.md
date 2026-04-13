@@ -22,6 +22,13 @@ pytest
 5. Push:   `git push && git push --tags`
    → GitHub Actions publishes to npm and PyPI automatically
 
+## GitHub Pages (interactive demo)
+
+The **Deploy Demo** workflow (`.github/workflows/demo.yml`) publishes the `demo/` folder.
+
+1. Repo **Settings → Pages → Build and deployment**: set **Source** to **GitHub Actions** (not “Deploy from a branch”). Until this is set, deploy steps will fail.
+2. If the **github-pages** environment has **required reviewers**, approve the deployment under **Actions** when a run is waiting.
+
 ## Adding a New Adapter
 
 1. Create `src/adapters/<framework>.ts`
