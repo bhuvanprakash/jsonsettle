@@ -1,5 +1,5 @@
 /**
- * Zod schema binding for streamjson.
+ * Zod schema binding for jsonsettle.
  * Validates certainty-gated fields against your Zod schema.
  * Peer dependency: zod >= 3
  *

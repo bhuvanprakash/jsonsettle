@@ -446,7 +446,7 @@ export class StreamingJSONParser {
     if (kind === null || kind !== expected) {
       const got = kind ?? 'unknown'
       const err = new SchemaError(
-        `[streamjson] Schema mismatch for field "${field}": expected JSON ${expected}, got ${got} (pos ${this.pos})`,
+        `[jsonsettle] Schema mismatch for field "${field}": expected JSON ${expected}, got ${got} (pos ${this.pos})`,
         field,
         expected,
       )
@@ -465,7 +465,7 @@ export class StreamingJSONParser {
   }
 
   private error(msg: string): never {
-    const err = new Error(`[streamjson] ${msg} (pos ${this.pos})`)
+    const err = new Error(`[jsonsettle] ${msg} (pos ${this.pos})`)
     return this.fail(err)
   }
 }

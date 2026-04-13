@@ -1,5 +1,5 @@
 /**
- * React adapter for streamjson.
+ * React adapter for jsonsettle.
  * Peer dependency: react >= 18
  *
  * @example

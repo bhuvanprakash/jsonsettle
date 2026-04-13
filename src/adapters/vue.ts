@@ -1,5 +1,5 @@
 /**
- * Vue 3 composable for streamjson.
+ * Vue 3 composable for jsonsettle.
  * Peer dependency: vue >= 3
  */
 /// <reference types="vue" />

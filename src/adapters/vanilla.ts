@@ -86,7 +86,7 @@ export function fromFetchResponse(
 ): () => void {
   const body = response.body
   if (!body) {
-    const err = new Error('[streamjson] Response has no body')
+    const err = new Error('[jsonsettle] Response has no body')
     opts.onError?.(err)
     throw err
   }

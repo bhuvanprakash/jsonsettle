@@ -1,13 +1,22 @@
 {
-  "name": "streamjson",
+  "name": "@bhuvanprakash/jsonsettle",
   "version": "0.1.0",
   "description": "Schema-aware streaming JSON parser for LLMs. Know exactly which fields are certain vs still streaming — in real time.",
-  "keywords": ["llm", "streaming", "json", "parser", "openai", "anthropic", "structured-output", "zod"],
+  "keywords": [
+    "llm",
+    "streaming",
+    "json",
+    "parser",
+    "openai",
+    "anthropic",
+    "structured-output",
+    "zod"
+  ],
   "author": "Bhuvan Prakash",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bhuvan/streamjson"
+    "url": "https://github.com/bhuvan/jsonsettle"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -42,38 +51,70 @@
   },
   "typesVersions": {
     "*": {
-      "react": ["dist/adapters/react.d.ts"],
-      "vue": ["dist/adapters/vue.d.ts"],
-      "vanilla": ["dist/adapters/vanilla.d.ts"],
-      "zod": ["dist/schema/zod.d.ts"]
+      "react": [
+        "dist/adapters/react.d.ts"
+      ],
+      "vue": [
+        "dist/adapters/vue.d.ts"
+      ],
+      "vanilla": [
+        "dist/adapters/vanilla.d.ts"
+      ],
+      "zod": [
+        "dist/schema/zod.d.ts"
+      ]
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsup",
+    "bench": "npx tsx benchmarks/run.ts && npx tsx benchmarks/graph.ts",
+    "bench:compare": "npx tsx benchmarks/compare.ts && npx tsx benchmarks/graph.ts",
+    "bench:memory": "node --expose-gc --import tsx benchmarks/memory.ts && npx tsx benchmarks/graph.ts",
     "dev": "tsup --watch",
     "test": "vitest run",
+    "test:integration": "vitest run tests/integration/",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "demo": "npx serve demo",
     "prepublishOnly": "npm run build && npm run test"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.88.0",
+    "@streamparser/json": "^0.0.22",
+    "@types/react": "^18.0.0",
+    "openai": "^6.34.0",
+    "partial-json": "^0.1.7",
+    "tinybench": "^4.1.0",
     "tsup": "^8.0.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.4.0",
     "vitest": "^1.0.0",
-    "zod": "^3.22.0",
-    "@types/react": "^18.0.0",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "zod": "^3.22.0"
   },
   "peerDependencies": {
     "react": ">=18",
-    "zod": ">=3",
-    "vue": ">=3"
+    "vue": ">=3",
+    "zod": ">=3"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true },
-    "zod": { "optional": true },
-    "vue": { "optional": true }
+    "react": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "twine": "^2.0.0"
   }
 }
