@@ -1,8 +1,11 @@
 name: Deploy Demo
 on:
   push:
-    branches: [main]
-    paths: ['demo/**']
+    branches: [main, master]
+    paths:
+      - 'demo/**'
+      - '.github/workflows/demo.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:
