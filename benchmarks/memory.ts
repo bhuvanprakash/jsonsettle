@@ -66,7 +66,7 @@ writeFileSync(
 )
 
 /* BENCHMARK RESULTS — run on Apple M-series, Node v20, 2026-04-13
-> jsonsettle@0.1.0 bench:memory
+> jsonsettle@0.1.1 bench:memory
 > node --expose-gc --import tsx benchmarks/memory.ts
 
 ── memory usage per parse operation ─────────────────────────

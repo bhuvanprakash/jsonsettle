@@ -3,6 +3,11 @@
 All notable changes to this project will be documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.1] — 2026-04-13
+
+### Changed
+- Version bump only: npm does not allow reusing a version number after it was ever published, even if the package was later unpublished. Publish as `0.1.1` instead.
+
 ## [0.1.0] — 2026-04-13
 
 ### Added

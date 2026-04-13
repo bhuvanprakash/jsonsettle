@@ -70,7 +70,7 @@ writeFileSync(
 console.log('\nSaved to benchmarks/results/')
 
 /* BENCHMARK RESULTS — run on Apple M-series, Node v20, 2026-04-13
-> jsonsettle@0.1.0 bench
+> jsonsettle@0.1.1 bench
 > npx tsx benchmarks/run.ts
 
 ── jsonsettle throughput benchmark ──────────────────────────
