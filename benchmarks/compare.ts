@@ -127,7 +127,7 @@ writeFileSync(
 )
 
 /* BENCHMARK RESULTS — run on Apple M-series, Node v20, 2026-04-13
-> jsonsettle@0.1.1 bench:compare
+> jsonsettle@0.1.2 bench:compare
 > npx tsx benchmarks/compare.ts
 
 ── comparison: jsonsettle vs alternatives ────────────────────

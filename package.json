@@ -1,6 +1,6 @@
 {
-  "name": "@bhuvanprakash/jsonsettle",
-  "version": "0.1.1",
+  "name": "jsonsettle",
+  "version": "0.1.2",
   "description": "Schema-aware streaming JSON parser for LLMs. Know exactly which fields are certain vs still streaming — in real time.",
   "keywords": [
     "llm",

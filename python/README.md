@@ -4,7 +4,7 @@ Schema-aware streaming JSON parser for LLMs: know which fields are **certain** v
 
 This package mirrors the TypeScript `jsonsettle` library’s core state machine (certainty rules, nested objects/arrays, optional top-level schema checks).
 
-**Repository:** [github.com/bhuvanprakash/jsonsettle](https://github.com/bhuvanprakash/jsonsettle) (TypeScript SDK is published on npm as `@bhuvanprakash/jsonsettle`).
+**Repository:** [github.com/bhuvanprakash/jsonsettle](https://github.com/bhuvanprakash/jsonsettle) (TypeScript SDK is published on npm as `jsonsettle`).
 
 ## Install
 

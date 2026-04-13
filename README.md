@@ -2,7 +2,7 @@
   <h1>jsonsettle</h1>
   <p><strong>Schema-aware streaming JSON parser for LLMs.</strong><br>
   Know exactly which fields are <code>certain</code> vs still <code>streaming</code> — token by token.</p>
-  <img alt="npm" src="https://img.shields.io/npm/v/%40bhuvanprakash%2Fjsonsettle?color=7c6dfa&style=flat-square">
+  <img alt="npm" src="https://img.shields.io/npm/v/jsonsettle?color=7c6dfa&style=flat-square">
   <img alt="license" src="https://img.shields.io/github/license/bhuvanprakash/jsonsettle?color=4ade80&style=flat-square">
   <img alt="dependencies" src="https://img.shields.io/badge/dependencies-twine-7c6dfa?style=flat-square">
   <img src="https://raw.githubusercontent.com/bhuvanprakash/jsonsettle/main/assets/demo.gif" alt="jsonsettle demo" width="700">
@@ -25,7 +25,7 @@ So every app **waits**. `name` was done 40 tokens ago. You're blocking the UI fo
 ## The Solution
 
 ```ts
-import { StreamingJSONParser } from '@bhuvanprakash/jsonsettle'
+import { StreamingJSONParser } from 'jsonsettle'
 
 const parser = new StreamingJSONParser({
   onUpdate({ partial, fields }) {
@@ -55,7 +55,7 @@ parser.write('{"name":"Priya","age":28}')
 ## Install
 
 ```sh
-npm install @bhuvanprakash/jsonsettle
+npm install jsonsettle
 ```
 
 Python (PyPI package name is unscoped):
@@ -69,7 +69,7 @@ pip install jsonsettle
 ### Vanilla JS / Node
 
 ```ts
-import { StreamingJSONParser } from '@bhuvanprakash/jsonsettle'
+import { StreamingJSONParser } from 'jsonsettle'
 
 const parser = new StreamingJSONParser({
   onUpdate({ partial, fields, isComplete }) {
@@ -94,7 +94,7 @@ parser.flush()
 ### React Hook
 
 ```ts
-import { useStreamingJSON } from '@bhuvanprakash/jsonsettle/react'
+import { useStreamingJSON } from 'jsonsettle/react'
 
 function UserCard({ stream }: { stream: ReadableStream<string> }) {
   const { partial, fields, isComplete } = useStreamingJSON<User>(stream)
@@ -116,7 +116,7 @@ function UserCard({ stream }: { stream: ReadableStream<string> }) {
 ### Zod Schema Binding
 
 ```ts
-import { createSchemaParser } from '@bhuvanprakash/jsonsettle/zod'
+import { createSchemaParser } from 'jsonsettle/zod'
 import { z } from 'zod'
 
 const UserSchema = z.object({

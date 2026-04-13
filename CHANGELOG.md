@@ -3,6 +3,14 @@
 All notable changes to this project will be documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.2] — 2026-04-13
+
+### Changed
+- **npm package name is now unscoped `jsonsettle`** — install with `npm install jsonsettle` and import from `jsonsettle`, `jsonsettle/react`, etc.
+- Removed mistaken runtime dependency on the old scoped package name.
+
+The previously published scoped package `@bhuvanprakash/jsonsettle` may remain on npm for older installs; prefer `jsonsettle` going forward.
+
 ## [0.1.1] — 2026-04-13
 
 ### Changed

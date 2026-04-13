@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jsonsettle"
-version = "0.1.1"
+version = "0.1.2"
 description = "Schema-aware streaming JSON parser for LLMs. Know which fields are certain vs streaming — token by token."
 readme = "README.md"
 authors = [{ name = "Bhuvan Prakash" }]
