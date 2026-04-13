@@ -1,0 +1,79 @@
+{
+  "name": "streamjson",
+  "version": "0.1.0",
+  "description": "Schema-aware streaming JSON parser for LLMs. Know exactly which fields are certain vs still streaming — in real time.",
+  "keywords": ["llm", "streaming", "json", "parser", "openai", "anthropic", "structured-output", "zod"],
+  "author": "Bhuvan Prakash",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bhuvan/streamjson"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/adapters/react.d.ts",
+      "import": "./dist/adapters/react.js",
+      "require": "./dist/adapters/react.cjs"
+    },
+    "./zod": {
+      "types": "./dist/schema/zod.d.ts",
+      "import": "./dist/schema/zod.js",
+      "require": "./dist/schema/zod.cjs"
+    },
+    "./vue": {
+      "types": "./dist/adapters/vue.d.ts",
+      "import": "./dist/adapters/vue.js",
+      "require": "./dist/adapters/vue.cjs"
+    },
+    "./vanilla": {
+      "types": "./dist/adapters/vanilla.d.ts",
+      "import": "./dist/adapters/vanilla.js",
+      "require": "./dist/adapters/vanilla.cjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "react": ["dist/adapters/react.d.ts"],
+      "vue": ["dist/adapters/vue.d.ts"],
+      "vanilla": ["dist/adapters/vanilla.d.ts"],
+      "zod": ["dist/schema/zod.d.ts"]
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "demo": "npx serve demo",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0",
+    "zod": "^3.22.0",
+    "@types/react": "^18.0.0",
+    "vue": "^3.4.0"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "zod": ">=3",
+    "vue": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "zod": { "optional": true },
+    "vue": { "optional": true }
+  }
+}

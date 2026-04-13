@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>streamjson — Schema-aware streaming JSON for LLMs</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=jet-brains-mono@400,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d10; --surface: #141418; --surface2: #1a1a20;
+  --border: #2a2a32; --text: #e8e8f0; --muted: #6b6b80;
+  --primary: #7c6dfa; --primary-dim: rgba(124,109,250,0.15);
+  --streaming: #f5a623; --streaming-dim: rgba(245,166,35,0.12);
+  --certain: #4ade80; --certain-dim: rgba(74,222,128,0.12);
+  --red: #f87171;
+  --font-body: 'Satoshi', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: var(--font-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+body { min-height: 100dvh; }
+
+/* ── Header ── */
+.header { padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; }
+.logo-icon { width: 28px; height: 28px; }
+.badge { font-size: 0.7rem; background: var(--primary-dim); color: var(--primary); padding: 2px 8px; border-radius: 999px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.header-links { display: flex; gap: 16px; align-items: center; }
+.header-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; transition: color 0.15s; }
+.header-links a:hover { color: var(--text); }
+.github-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text) !important; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem !important; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+
+/* ── Hero ── */
+.hero { padding: 72px 32px 48px; max-width: 800px; margin: 0 auto; text-align: center; }
+.hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 20px; }
+.hero h1 span { background: linear-gradient(135deg, var(--primary), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero p { font-size: 1.1rem; color: var(--muted); max-width: 560px; margin: 0 auto 36px; line-height: 1.7; }
+.install-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 0.9rem; cursor: pointer; transition: border-color 0.15s; }
+.install-block:hover { border-color: var(--primary); }
+.install-block span { color: var(--muted); }
+.copy-icon { color: var(--muted); width: 16px; height: 16px; flex-shrink: 0; }
+.copied-toast { position: fixed; bottom: 24px; right: 24px; background: var(--certain); color: #000; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; }
+.copied-toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── Demo Section ── */
+.demo-section { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+.demo-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; text-align: center; }
+.demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 720px) { .demo-grid { grid-template-columns: 1fr; } }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.panel-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.panel-title { font-size: 0.8rem; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; }
+.dot-stream { background: var(--streaming); animation: pulse-dot 1.2s ease-in-out infinite; }
+.dot-live { background: var(--certain); animation: pulse-dot 1.2s ease-in-out infinite 0.3s; }
+.dot-idle { background: var(--muted); }
+@keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+.token-log { padding: 16px 18px; font-family: var(--font-mono); font-size: 0.8rem; height: 300px; overflow-y: auto; color: var(--muted); line-height: 1.8; word-break: break-all; }
+.token-log::-webkit-scrollbar { width: 4px; }
+.token-log::-webkit-scrollbar-track { background: transparent; }
+.token-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.t-key { color: #79c0ff; }
+.t-colon { color: var(--muted); }
+.t-str { color: #a5d6ff; }
+.t-num { color: #ffa657; }
+.t-bool { color: #ff7b72; }
+.t-punc { color: var(--muted); }
+.t-new { animation: flash-in 0.15s ease; }
+@keyframes flash-in { from { background: rgba(124,109,250,0.25); } to { background: transparent; } }
+
+/* ── Live Card ── */
+.live-card { padding: 20px 18px; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.field-row { display: flex; flex-direction: column; gap: 4px; }
+.field-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.status-badge { font-size: 0.65rem; padding: 1px 6px; border-radius: 999px; font-weight: 700; letter-spacing: 0.04em; }
+.status-badge.streaming { background: var(--streaming-dim); color: var(--streaming); }
+.status-badge.certain { background: var(--certain-dim); color: var(--certain); }
+.status-badge.pending { background: rgba(107,107,128,0.15); color: var(--muted); }
+.field-value { font-family: var(--font-mono); font-size: 0.85rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; min-height: 36px; color: var(--text); transition: border-color 0.2s, background 0.2s; word-break: break-all; }
+.field-value.streaming { border-color: var(--streaming); background: var(--streaming-dim); }
+.field-value.certain { border-color: var(--certain); background: var(--certain-dim); }
+.field-value.pending { color: var(--muted); font-style: italic; }
+.cursor { display: inline-block; width: 2px; height: 0.9em; background: var(--streaming); margin-left: 2px; vertical-align: middle; animation: blink 0.8s step-end infinite; }
+@keyframes blink { 50%{opacity:0;} }
+
+/* ── Controls ── */
+.controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+.btn { padding: 10px 20px; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: var(--font-body); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #6a5cf0; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ghost { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--text); border-color: var(--primary); }
+.scenario-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: all 0.15s; }
+.scenario-btn.active, .scenario-btn:hover { background: var(--primary-dim); border-color: var(--primary); color: var(--primary); }
+
+/* ── Code Section ── */
+.code-section { max-width: 820px; margin: 0 auto 80px; padding: 0 24px; }
+.code-section h2 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+.code-section p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.7; }
+.code-tabs { display: flex; gap: 2px; margin-bottom: -1px; }
+.code-tab { padding: 8px 16px; font-size: 0.8rem; font-weight: 600; background: transparent; border: 1px solid transparent; border-bottom: none; border-radius: 6px 6px 0 0; cursor: pointer; color: var(--muted); font-family: var(--font-body); transition: all 0.15s; }
+.code-tab.active { background: var(--surface); border-color: var(--border); color: var(--text); }
+pre { background: var(--surface); border: 1px solid var(--border); border-radius: 0 10px 10px 10px; padding: 24px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; }
+.kw { color: #ff7b72; } .fn { color: #d2a8ff; } .str { color: #a5d6ff; }
+.cm { color: #6b6b80; } .type { color: #ffa657; } .op { color: #79c0ff; }
+
+/* ── Comparison ── */
+.comparison { max-width: 1100px; margin: 0 auto 80px; padding: 0 24px; }
+.comparison h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.02em; }
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 640px) { .comp-grid { grid-template-columns: 1fr; } }
+.comp-panel { border-radius: 12px; padding: 20px; }
+.comp-panel.bad { background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.2); }
+.comp-panel.good { background: var(--certain-dim); border: 1px solid rgba(74,222,128,0.3); }
+.comp-panel h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.comp-panel.bad h3 { color: var(--red); }
+.comp-panel.good h3 { color: var(--certain); }
+.comp-panel ul { padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+.comp-panel li { font-size: 0.875rem; color: var(--muted); line-height: 1.5; }
+.comp-panel.good li { color: var(--text); }
+
+/* ── Footer ── */
+footer { text-align: center; padding: 32px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; }
+footer a { color: var(--primary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">
+    <svg class="logo-icon" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="7" fill="#7c6dfa" fill-opacity="0.15"/>
+      <path d="M7 10h5M7 14h9M7 18h6" stroke="#7c6dfa" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="20" cy="10" r="3" fill="#4ade80"/>
+      <circle cx="20" cy="18" r="3" fill="#f5a623"/>
+    </svg>
+    streamjson
+    <span class="badge">v0.1</span>
+  </div>
+  <nav class="header-links">
+    <a href="#demo">Demo</a>
+    <a href="#usage">Usage</a>
+    <a href="https://github.com/bhuvan/streamjson" target="_blank" class="github-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      GitHub
+    </a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Streaming JSON that knows<br><span>what's certain</span></h1>
+  <p>Every LLM app waits for the full response before using structured data. streamjson tells you which fields are <strong style="color:var(--certain)">done</strong> vs still <strong style="color:var(--streaming)">streaming</strong> — token by token.</p>
+  <div class="install-block" onclick="copyInstall()">
+    <span>$</span>
+    <code>npm install streamjson</code>
+    <svg class="copy-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+  </div>
+</section>
+
+<!-- Demo -->
+<section class="demo-section" id="demo">
+  <p class="demo-label">Live Interactive Demo</p>
+
+  <div class="controls">
+    <button class="scenario-btn active" data-scenario="user" onclick="setScenario('user', this)">👤 User Profile</button>
+    <button class="scenario-btn" data-scenario="order" onclick="setScenario('order', this)">📦 Order</button>
+    <button class="scenario-btn" data-scenario="analysis" onclick="setScenario('analysis', this)">🧠 AI Analysis</button>
+    <button class="btn btn-primary" id="playBtn" onclick="startDemo()">▶ Stream It</button>
+    <button class="btn btn-ghost" onclick="resetDemo()">↺ Reset</button>
+  </div>
+
+  <div class="demo-grid">
+    <!-- Left: raw token stream -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <div class="dot dot-idle" id="streamDot"></div>
+          Raw Token Stream
+        </div>
+        <span style="font-size:0.7rem;color:var(--muted)" id="tokenCount">0 tokens</span>
+      </div>
+      <div class="token-log" id="tokenLog"><span style="color:var(--muted);font-style:italic">Waiting for stream…</span></div>
+    </div>
+
+    <!-- Right: live parsed card -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <div class="dot dot-idle" id="liveDot"></div>
+          Live Parsed Output
+        </div>
+        <span style="font-size:0.7rem;color:var(--muted)" id="completeLabel"></span>
+      </div>
+      <div class="live-card" id="liveCard">
+        <span style="color:var(--muted);font-style:italic;font-size:0.85rem">Fields appear as tokens arrive…</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Code Examples -->
+<section class="code-section" id="usage">
+  <h2>Simple, powerful API</h2>
+  <p>Zero dependencies for the core. Optional React hooks and Zod schema binding.</p>
+
+  <div class="code-tabs">
+    <button class="code-tab active" onclick="showTab('vanilla', this)">Vanilla JS</button>
+    <button class="code-tab" onclick="showTab('react', this)">React</button>
+    <button class="code-tab" onclick="showTab('zod', this)">Zod Schema</button>
+  </div>
+
+  <pre id="tab-vanilla"><span class="kw">import</span> { <span class="type">StreamingJSONParser</span> } <span class="kw">from</span> <span class="str">'streamjson'</span>
+
+<span class="cm">// Works with any LLM provider — OpenAI, Anthropic, Gemini, your own</span>
+<span class="kw">const</span> parser = <span class="kw">new</span> <span class="fn">StreamingJSONParser</span>({
+  <span class="fn">onUpdate</span>({ partial, fields, isComplete }) {
+    <span class="cm">// Fires on every token</span>
+    <span class="kw">for</span> (<span class="kw">const</span> [key, info] <span class="kw">of</span> <span class="fn">Object.entries</span>(fields)) {
+      <span class="kw">if</span> (info.certainty === <span class="str">'certain'</span>) {
+        <span class="cm">// This field's value will NOT change anymore ✓</span>
+        <span class="fn">renderField</span>(key, info.value)
+      }
+    }
+  }
+})
+
+<span class="cm">// Feed any stream — ReadableStream, AsyncIterator, whatever</span>
+<span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/llm'</span>)
+<span class="kw">const</span> reader = response.body.<span class="fn">getReader</span>()
+<span class="kw">while</span> (<span class="kw">true</span>) {
+  <span class="kw">const</span> { done, value } = <span class="kw">await</span> reader.<span class="fn">read</span>()
+  <span class="kw">if</span> (done) { parser.<span class="fn">flush</span>(); <span class="kw">break</span> }
+  parser.<span class="fn">write</span>(<span class="kw">new</span> <span class="type">TextDecoder</span>().<span class="fn">decode</span>(value))
+}</pre>
+
+  <pre id="tab-react" style="display:none"><span class="kw">import</span> { <span class="fn">useStreamingJSON</span> } <span class="kw">from</span> <span class="str">'streamjson/react'</span>
+
+<span class="kw">function</span> <span class="fn">UserCard</span>({ stream }) {
+  <span class="kw">const</span> { partial, fields, isComplete } = <span class="fn">useStreamingJSON</span>&lt;<span class="type">User</span>&gt;(stream)
+
+  <span class="kw">return</span> (
+    &lt;<span class="type">div</span>&gt;
+      &lt;<span class="type">Field</span>
+        label=<span class="str">"Name"</span>
+        value={partial.name}
+        certainty={fields[<span class="str">'name'</span>]?.certainty}
+      /&gt;
+      &lt;<span class="type">Field</span>
+        label=<span class="str">"Age"</span>
+        value={partial.age}
+        certainty={fields[<span class="str">'age'</span>]?.certainty}
+      /&gt;
+    &lt;/<span class="type">div</span>&gt;
+  )
+}</pre>
+
+  <pre id="tab-zod" style="display:none"><span class="kw">import</span> { <span class="fn">createSchemaParser</span> } <span class="kw">from</span> <span class="str">'streamjson/zod'</span>
+<span class="kw">import</span> { z } <span class="kw">from</span> <span class="str">'zod'</span>
+
+<span class="kw">const</span> UserSchema = z.<span class="fn">object</span>({
+  name:   z.<span class="fn">string</span>(),
+  age:    z.<span class="fn">number</span>().<span class="fn">int</span>().<span class="fn">positive</span>(),
+  email:  z.<span class="fn">string</span>().<span class="fn">email</span>(),
+  active: z.<span class="fn">boolean</span>(),
+})
+
+<span class="kw">const</span> parser = <span class="fn">createSchemaParser</span>(UserSchema, {
+  schema: UserSchema,
+  <span class="cm">// Fires only when a field is CERTAIN and passes schema validation</span>
+  <span class="fn">onCertainField</span>(key, value) {
+    console.<span class="fn">log</span>(<span class="str">`✓ ${key}: ${value}`</span>) <span class="cm">// typed as z.infer&lt;typeof UserSchema&gt;</span>
+  },
+})</pre>
+</section>
+
+<!-- Comparison -->
+<section class="comparison">
+  <h2>Why not existing solutions?</h2>
+  <div class="comp-grid">
+    <div class="comp-panel bad">
+      <h3>✗ partial-json / @streamparser/json</h3>
+      <ul>
+        <li>Repairs broken JSON but has no concept of <em>certainty</em></li>
+        <li>No schema awareness — doesn't know your types</li>
+        <li>No TypeScript inference on partial values</li>
+        <li>No field-level callbacks — you get the whole object or nothing</li>
+        <li>Can't tell you "this field will NOT change anymore"</li>
+      </ul>
+    </div>
+    <div class="comp-panel good">
+      <h3>✓ streamjson</h3>
+      <ul>
+        <li>Each field tagged <strong>streaming</strong> vs <strong>certain</strong> — never guess again</li>
+        <li>Schema-aware with Zod: validates certainty-gated fields against your types</li>
+        <li>Full TypeScript inference — <code>Partial&lt;YourType&gt;</code> out of the box</li>
+        <li>React hook that re-renders only on relevant field changes</li>
+        <li>Zero dependencies in core — works in Node, Deno, Bun, browsers, edge</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Built by <a href="https://github.com/bhuvan">Bhuvan Prakash</a> · MIT License · <a href="https://github.com/bhuvan/streamjson">GitHub</a>
+</footer>
+
+<div class="copied-toast" id="toast">Copied!</div>
+
+<script>
+// ── Demo Scenarios ────────────────────────────────────────────────────────────
+const SCENARIOS = {
+  user: {
+    fields: ['name', 'email', 'age', 'verified', 'bio'],
+    json: '{"name":"Priya Sharma","email":"priya@example.com","age":28,"verified":true,"bio":"ML engineer at Nascentist. Building the future of AI inference."}'
+  },
+  order: {
+    fields: ['id', 'product', 'quantity', 'price', 'status'],
+    json: '{"id":"ORD-9281","product":"RTX 5090 Ti","quantity":2,"price":4599.99,"status":"confirmed"}'
+  },
+  analysis: {
+    fields: ['intent', 'confidence', 'summary', 'action_required', 'priority'],
+    json: '{"intent":"technical_support","confidence":0.94,"summary":"User reports GPU inference bottleneck at 40ms TTFT with batch size 8.","action_required":true,"priority":"high"}'
+  }
+}
+
+let currentScenario = 'user'
+let streamInterval = null
+let tokenPos = 0
+let tokenCount = 0
+let isRunning = false
+
+function setScenario(name, btn) {
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  currentScenario = name
+  resetDemo()
+}
+
+function resetDemo() {
+  if (streamInterval) clearInterval(streamInterval)
+  streamInterval = null
+  tokenPos = 0
+  tokenCount = 0
+  isRunning = false
+  document.getElementById('tokenLog').innerHTML = '<span style="color:var(--muted);font-style:italic">Waiting for stream…</span>'
+  document.getElementById('liveCard').innerHTML = '<span style="color:var(--muted);font-style:italic;font-size:0.85rem">Fields appear as tokens arrive…</span>'
+  document.getElementById('streamDot').className = 'dot dot-idle'
+  document.getElementById('liveDot').className = 'dot dot-idle'
+  document.getElementById('tokenCount').textContent = '0 tokens'
+  document.getElementById('completeLabel').textContent = ''
+  document.getElementById('playBtn').disabled = false
+  document.getElementById('playBtn').textContent = '▶ Stream It'
+}
+
+// ── Minimal inline parser (mirrors src/core/parser.ts logic for demo) ─────────
+function streamjsonParse(json) {
+  const fields = {}
+  const partial = {}
+  let state = 'ROOT', key = null, buf = '', stack = [{ type: 'obj', obj: partial, certainKeys: new Set() }]
+  
+  function top() { return stack[stack.length - 1] }
+  function setVal(v, certainty) {
+    if (!key) return
+    top().obj[key] = v
+    fields[key] = { value: v, certainty }
+  }
+  function certify() {
+    if (key && fields[key]) fields[key].certainty = 'certain'
+  }
+
+  for (let i = 0; i < json.length; i++) {
+    const ch = json[i]
+    if (state === 'ROOT' || state === 'AFTER_COLON') {
+      if (ch === '"') { buf = ''; state = 'IN_VAL_STR' }
+      else if ('0123456789-'.includes(ch)) { buf = ch; state = 'IN_NUM'; setVal(parseFloat(ch)||0, 'streaming') }
+      else if (ch === 't') { state = 'LITERAL'; buf = 't' }
+      else if (ch === 'f') { state = 'LITERAL'; buf = 'f' }
+      else if (ch === 'n') { state = 'LITERAL'; buf = 'n' }
+    } else if (state === 'IN_KEY') {
+      if (ch === '"') { key = buf; buf = ''; state = 'AFTER_KEY' }
+      else buf += ch
+    } else if (state === 'IN_VAL_STR') {
+      if (ch === '"') { setVal(buf, 'certain'); buf = ''; state = 'AFTER_VAL' }
+      else { buf += ch; setVal(buf, 'streaming') }
+    } else if (state === 'IN_NUM') {
+      if ('0123456789.eE+-'.includes(ch)) { buf += ch; setVal(parseFloat(buf), 'streaming') }
+      else { setVal(parseFloat(buf), 'certain'); certify(); i--; state = 'AFTER_VAL' }
+    } else if (state === 'LITERAL') {
+      buf += ch
+      if (buf === 'true') { setVal(true, 'certain'); state = 'AFTER_VAL' }
+      else if (buf === 'false') { setVal(false, 'certain'); state = 'AFTER_VAL' }
+      else if (buf === 'null') { setVal(null, 'certain'); state = 'AFTER_VAL' }
+    } else if (state === 'AFTER_VAL') {
+      if (ch === ',') { certify(); key = null; state = 'AFTER_COMMA' }
+      else if (ch === '}') { certify(); }
+    } else if (state === 'AFTER_COMMA' || state === 'OBJ_OPEN') {
+      if (ch === '"') { buf = ''; state = 'IN_KEY' }
+    } else if (state === 'AFTER_KEY') {
+      if (ch === ':') state = 'AFTER_COLON'
+    } else if (state === '{') { state = 'OBJ_OPEN' }
+    
+    if (state === 'ROOT' && ch === '{') state = 'OBJ_OPEN'
+  }
+  return { partial, fields, isComplete: true }
+}
+
+// ── Render helpers ────────────────────────────────────────────────────────────
+function colorizeToken(ch) {
+  if (ch === '{' || ch === '}' || ch === '[' || ch === ']' || ch === ':' || ch === ',') 
+    return `<span class="t-punc">${ch}</span>`
+  return `<span class="t-new">${ch}</span>`
+}
+
+function renderLiveCard(partial, fields, fieldNames, isComplete) {
+  const card = document.getElementById('liveCard')
+  let html = ''
+  for (const fname of fieldNames) {
+    const info = fields[fname]
+    const val = partial[fname]
+    const hasSeen = val !== undefined
+    const certainty = info?.certainty ?? (hasSeen ? 'streaming' : 'pending')
+    const displayVal = hasSeen ? JSON.stringify(val) : '—'
+    html += `<div class="field-row">
+      <div class="field-label">
+        ${fname}
+        <span class="status-badge ${certainty}">${certainty === 'certain' ? '✓ certain' : certainty === 'streaming' ? '◌ streaming' : 'pending'}</span>
+      </div>
+      <div class="field-value ${certainty}">
+        ${displayVal}${certainty === 'streaming' ? '<span class="cursor"></span>' : ''}
+      </div>
+    </div>`
+  }
+  card.innerHTML = html
+  if (isComplete) {
+    document.getElementById('completeLabel').textContent = '✓ Complete'
+    document.getElementById('completeLabel').style.color = 'var(--certain)'
+    document.getElementById('liveDot').className = 'dot'
+    document.getElementById('liveDot').style.background = 'var(--certain)'
+  }
+}
+
+function startDemo() {
+  if (isRunning) return
+  isRunning = true
+  const s = SCENARIOS[currentScenario]
+  const json = s.json
+  const log = document.getElementById('tokenLog')
+  log.innerHTML = ''
+  document.getElementById('streamDot').className = 'dot dot-stream'
+  document.getElementById('liveDot').className = 'dot dot-live'
+  document.getElementById('playBtn').disabled = true
+  document.getElementById('playBtn').textContent = '⏳ Streaming…'
+
+  let sent = ''
+  const speeds = [30, 40, 25, 50, 35] // varying token delays for realism
+
+  streamInterval = setInterval(() => {
+    if (tokenPos >= json.length) {
+      clearInterval(streamInterval)
+      document.getElementById('streamDot').className = 'dot'
+      document.getElementById('streamDot').style.background = 'var(--certain)'
+      document.getElementById('playBtn').disabled = false
+      document.getElementById('playBtn').textContent = '▶ Stream It'
+      isRunning = false
+      return
+    }
+
+    // Send 1-3 chars at a time (realistic LLM tokenization)
+    const chunkSize = Math.floor(Math.random() * 3) + 1
+    const chunk = json.slice(tokenPos, tokenPos + chunkSize)
+    tokenPos += chunkSize
+    sent += chunk
+    tokenCount += chunk.length
+
+    // Update token log
+    for (const ch of chunk) {
+      const span = document.createElement('span')
+      span.innerHTML = colorizeToken(ch === '<' ? '&lt;' : ch === '>' ? '&gt;' : ch)
+      log.appendChild(span)
+    }
+    log.scrollTop = log.scrollHeight
+    document.getElementById('tokenCount').textContent = `${tokenCount} tokens`
+
+    // Parse current state
+    const { partial, fields } = streamjsonParse(sent)
+    renderLiveCard(partial, fields, s.fields, tokenPos >= json.length)
+
+  }, speeds[tokenPos % speeds.length] + Math.random() * 30)
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.code-tab').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  ;['vanilla','react','zod'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === name ? '' : 'none'
+  })
+}
+
+// ── Copy Install ──────────────────────────────────────────────────────────────
+function copyInstall() {
+  navigator.clipboard?.writeText('npm install streamjson').catch(()=>{})
+  const t = document.getElementById('toast')
+  t.classList.add('show')
+  setTimeout(() => t.classList.remove('show'), 1800)
+}
+</script>
+</body>
+</html>
