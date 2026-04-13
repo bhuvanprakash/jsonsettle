@@ -490,7 +490,7 @@ class StreamingJSONParser:
         if kind is None or kind != expected:
             got = kind or "unknown"
             err = SchemaError(
-                f'[streamjson] Schema mismatch for field "{field_name}": expected JSON {expected}, got {got} (pos {self._pos})',
+                f'[jsonsettle] Schema mismatch for field "{field_name}": expected JSON {expected}, got {got} (pos {self._pos})',
                 field_name,
                 expected,
             )
@@ -504,5 +504,5 @@ class StreamingJSONParser:
         raise err
 
     def _error(self, msg: str) -> None:
-        err = Exception(f"[streamjson] {msg} (pos {self._pos})")
+        err = Exception(f"[jsonsettle] {msg} (pos {self._pos})")
         self._fail(err)

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "streamjson"
+name = "jsonsettle"
 version = "0.1.0"
 description = "Schema-aware streaming JSON parser for LLMs. Know which fields are certain vs streaming — token by token."
 readme = "README.md"
@@ -13,7 +13,7 @@ requires-python = ">=3.10"
 keywords = ["llm", "streaming", "json", "openai", "anthropic", "pydantic"]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
+  "License :: OSI Approved :: Apache Software License",
   "Topic :: Software Development :: Libraries",
 ]
 dependencies = []
@@ -23,18 +23,18 @@ pydantic = ["pydantic>=2"]
 dev = ["pytest", "pytest-asyncio", "pydantic>=2", "hatchling"]
 
 [project.urls]
-Homepage = "https://github.com/bhuvan/streamjson"
-Repository = "https://github.com/bhuvan/streamjson"
-"Bug Tracker" = "https://github.com/bhuvan/streamjson/issues"
+Homepage = "https://github.com/bhuvan/jsonsettle"
+Repository = "https://github.com/bhuvan/jsonsettle"
+"Bug Tracker" = "https://github.com/bhuvan/jsonsettle/issues"
 
 [tool.hatch.version]
-path = "src/streamjson/__init__.py"
+path = "src/jsonsettle/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = ["src/", "tests/", "README.md", "LICENSE"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/streamjson"]
+packages = ["src/jsonsettle"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

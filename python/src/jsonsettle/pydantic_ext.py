@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Optional, Tuple, Type, TypeVar
 try:
     from pydantic import BaseModel, ValidationError
 except ImportError as e:  # pragma: no cover - import guard
-    raise ImportError("pydantic>=2 required for streamjson.pydantic_ext") from e
+    raise ImportError("pydantic>=2 required for jsonsettle.pydantic_ext") from e
 
 from .parser import StreamingJSONParser
 from .types import Certainty, ParserOptions

@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 from pydantic import BaseModel
 
-from streamjson import ParserOptions, SchemaError, StreamingJSONParser
-from streamjson.pydantic_ext import create_typed_parser
+from jsonsettle import ParserOptions, SchemaError, StreamingJSONParser
+from jsonsettle.pydantic_ext import create_typed_parser
 
 
 class TestCreateTypedParser:

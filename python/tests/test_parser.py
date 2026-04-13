@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from streamjson import Certainty, ParserOptions, StreamingJSONParser
+from jsonsettle import Certainty, ParserOptions, StreamingJSONParser
 
 
 def parse_input(input_str: str) -> list:

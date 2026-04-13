@@ -6,7 +6,7 @@ from typing import AsyncGenerator
 
 import pytest
 
-from streamjson import Certainty, ParserOptions, parse_async_iterable
+from jsonsettle import Certainty, ParserOptions, parse_async_iterable
 
 
 async def chars(s: str) -> AsyncGenerator[str, None]:
